@@ -16,6 +16,8 @@ struct ContentView: View {
             List{
                 ForEach(wishes) { wish in
                     Text(wish.wishName)
+                        .italic() //ponemos tipo de fuente del texto de wish
+                        .padding(.vertical, 4) //agregamos padding solo verticalmente
                 }
             }.navigationTitle("Wishlist")
                 .overlay{
@@ -29,8 +31,24 @@ struct ContentView: View {
         }
     }
 }
+#Preview ("List with simple data to try app") {
+    let container = try! ModelContainer(for: Wish.self, configurations: ModelConfiguration(isStoredInMemoryOnly: true))
+    //ModelContainer = es de swift data y es lo que habilita a la vista a poder leer, guardar y manejar los datos
+    //for: Wish.self = por cada Wish creado acontinuacion (self)
+    //isStoredInMemoryOnly = esto indica que se guarden los datos solo en la RAM ya que esto es solo un test, no necesito los datos
+    
+    
+    container.mainContext.insert(Wish(wishName: "Buy a new phone")) //insertamos un wish de clase Wish que contiene wishName
+    container.mainContext.insert(Wish(wishName: "Buy a book"))
+    container.mainContext.insert(Wish(wishName: "Learn SwiftUI"))
+    
+    return ContentView()
+        .modelContainer(container)
+}
 
-#Preview {
+//en el preview de arriba se cargan los datos en el mismo preview, por eso el return ya que es un test
+
+#Preview ("Empty list") {
     ContentView()
     //ahora necesitamos conectar el ContentView con swiftData
         .modelContainer(for: Wish.self, inMemory: true)
