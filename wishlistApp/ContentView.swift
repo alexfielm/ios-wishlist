@@ -9,6 +9,8 @@ struct ContentView: View {
     //el query está atento a nuevos cambios que se puedan hacer en la base de datos
     //ademas carga todos los datos a la vista de tipo clase Wish
     @Query private var wishes: [Wish]
+    @State private var isAlertShowing: Bool = false
+    @State private var title: String = ""
     
     var body: some View {
         
@@ -18,8 +20,36 @@ struct ContentView: View {
                     Text(wish.wishName)
                         .italic() //ponemos tipo de fuente del texto de wish
                         .padding(.vertical, 4) //agregamos padding solo verticalmente
+                        .swipeActions{
+                            Button("Delete", role: .destructive){
+                                modelContext.delete(wish)
+                            }
+                        }
                 }
             }.navigationTitle("Wishlist")
+                .toolbar{
+                    ToolbarItem(placement: .topBarTrailing){ //placement indica la posicion del toolbarItem (topBarTrailing == barra superior final (izquierda))
+                        Button{
+                            isAlertShowing.toggle()
+                        }label: {
+                            Image(systemName: "plus")
+                                .imageScale(.large)
+                        }
+                    }
+                    if wishes.isEmpty != true{
+                        ToolbarItem(placement: .bottomBar){
+                            Text("\(wishes.count) wish\(wishes.count > 1 ? "es" : "")")
+                        }
+                    }
+                }.alert("Create a new wish", isPresented: $isAlertShowing){
+                    TextField("Enter wish name", text: $title)
+                    Button{
+                        modelContext.insert(Wish(wishName: title))
+                        title = ""
+                    }label: {
+                        Text("Save")
+                    }
+                }
                 .overlay{
                     if wishes .isEmpty{
                         //esto se muestra cuando la vista principal no esta disponible
@@ -31,6 +61,7 @@ struct ContentView: View {
         }
     }
 }
+
 #Preview ("List with simple data to try app") {
     let container = try! ModelContainer(for: Wish.self, configurations: ModelConfiguration(isStoredInMemoryOnly: true))
     //ModelContainer = es de swift data y es lo que habilita a la vista a poder leer, guardar y manejar los datos
