@@ -44,6 +44,9 @@ struct ContentView: View {
                 }.alert("Create a new wish", isPresented: $isAlertShowing){
                     TextField("Enter wish name", text: $title)
                     Button{
+                        guard !title.isEmpty else{
+                            return
+                        }
                         modelContext.insert(Wish(wishName: title))
                         title = ""
                     }label: {
